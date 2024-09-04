@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "sms-sim"
+version = "0.1.0"
+description = ""
+authors = ["aduncan314 <aduncan314@users.noreply.github.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.9"
+click = "^8.1.7"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.8.0"
+isort = "^5.13.2"
+pytest = "^8.3.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

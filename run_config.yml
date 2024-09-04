@@ -1,0 +1,9 @@
+project:
+  producer:
+    message_count: 1000
+  senders:
+    A:
+      failure_rate: 0.0  # 0 <= failure_rate <= 1
+      mean_wait: 10  # In seconds
+  monitor:
+    rate: 10  # In seconds
