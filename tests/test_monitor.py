@@ -1,10 +1,13 @@
 import datetime as dt
 from multiprocessing import Queue
 
+import pytest
+
 from sms_sim import common
 from sms_sim import monitor
 
 
+@pytest.mark.skip(reason="Not ready")
 def test_basic_monitor(capsys):
     assert False
     # q = Queue()

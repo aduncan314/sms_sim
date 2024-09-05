@@ -5,9 +5,7 @@ from functools import partial
 from sms_sim.common import SMSMessage
 
 
-def _create_random_message(
-    num_func: t.Callable[[], str], msg_func: t.Callable[[], str]
-) -> SMSMessage:
+def _create_random_message(num_func: t.Callable[[], str], msg_func: t.Callable[[], str]) -> SMSMessage:
     num = num_func()
     msg = msg_func()
     return SMSMessage(phone_number=num, message=msg)

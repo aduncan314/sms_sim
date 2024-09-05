@@ -9,11 +9,15 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.9"
 click = "^8.1.7"
+pyyaml = "^6.0.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
 isort = "^5.13.2"
 pytest = "^8.3.2"
+
+[tool.black]
+line-length = 120
 
 [build-system]
 requires = ["poetry-core"]

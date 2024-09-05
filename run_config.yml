@@ -1,9 +1,10 @@
-project:
-  producer:
-    message_count: 1000
-  senders:
-    A:
-      failure_rate: 0.0  # 0 <= failure_rate <= 1
-      mean_wait: 10  # In seconds
-  monitor:
-    rate: 10  # In seconds
+runtime_env: "local"
+producer:
+  message_count: 1000
+senders:
+  first:
+    fail_rate: 0.1  # 0 <= failure_rate <= 1
+    mean_wait_ms: 10000  # In ms
+    std_wait_ms: 100
+monitor:
+  monitor_period: 10

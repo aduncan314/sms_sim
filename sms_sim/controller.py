@@ -5,29 +5,15 @@ from queue import Empty
 from sms_sim.monitor import Monitor
 from sms_sim.producer import create_phone_messages
 from sms_sim.sender import MessageSender
+from sms_sim.common import ConfiguredSettings
 
 TIMEOUT = 10
 
 
-class ControllerBase:
-    def __init__(self):
-        pass
-
-    def run(self):
-        raise NotImplementedError()
-
-
-# TODO: Does this even make sense?
-class LambdaController(ControllerBase):
-    def run(self):
-        # Just run one?
-        pass
-
-
-class LocalSenderController(ControllerBase):
-    def __init__(self, config: dict):
+class LocalSenderController:
+    def __init__(self, settings: ConfiguredSettings):
         super().__init__()
-        self._sender_config = config["senders"]
+        self._config = settings
         self._senders = {}
         self._msg_count = 0
 
@@ -37,25 +23,22 @@ class LocalSenderController(ControllerBase):
         self._create_senders()
 
     def submit_messages(self):
-        for msg in create_phone_messages(10000):
-            self._msg_queue.put(msg, timeout=TIMEOUT)  # TODO: Add timeout?
+        for msg in create_phone_messages(self._config.message_count):
+            self._msg_queue.put(msg, timeout=TIMEOUT)
             self._msg_count += 1
 
     def _create_senders(self):
-        for sender in self._sender_config:
-            name = sender["name"]
-            self._senders[name] = MessageSender(**sender["args"])
+        for sender in self._config.senders:
+            self._senders[sender.name] = MessageSender(sender.mean_wait_ms, sender.std_wait_ms, sender.fail_rate)
 
     def run(self):
         procs = []
 
         for name, sender in self._senders.items():
             print(f"Starting {name}...")
-            p = Process(
-                target=message_worker, args=(sender, self._msg_queue, self._out_queue)
-            )
+            p = Process(target=message_worker, args=(sender, self._msg_queue, self._out_queue))
             procs.append(p)
-        monitor_p = Process(target=monitor_worker, args=(self._out_queue,))
+        monitor_p = Process(target=monitor_worker, args=(self._out_queue, self._config.monitor_period))
         procs.append(monitor_p)
 
         for p in procs:
@@ -76,12 +59,10 @@ def message_worker(sender: MessageSender, in_q: Queue, out_q: Queue):
             if msg:
                 response = sender.send_messages(msg)
                 out_q.put(response, timeout=TIMEOUT)
-                # print(f"In controller, output q has {out_q.qsize()}")
     except Empty:
-        print("empty")
         return
 
 
-def monitor_worker(out_q: Queue):
-    m = Monitor(update_period=5, queue=out_q)
+def monitor_worker(out_q: Queue, period: int):
+    m = Monitor(update_period=period, queue=out_q)
     m.start()

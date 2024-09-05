@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 import typing as t
 from enum import Enum
-from functools import reduce, partial
+from functools import reduce
 from multiprocessing import Queue
 
 from sms_sim.common import SendResponse
@@ -41,9 +41,6 @@ class Monitor:
         buffer = []
         start_time = time.time()
         while True:
-            # if self._queue.empty():
-            #     print("Monitor q empty")
-            #     return
             try:
                 _next = self.get_next()
                 buffer.append(_next)
@@ -57,9 +54,7 @@ class Monitor:
     def _publish(self, buffer: t.List[SendResponse]):
         message_count = len(buffer)
         failed_count = len([r for r in buffer if not r.success])
-        total_msg_time = reduce(
-            lambda x, y: x + y, [r.end_time - r.start_time for r in buffer]
-        )
+        total_msg_time = reduce(lambda x, y: x + y, [r.end_time - r.start_time for r in buffer])
         mean_msg_time = total_msg_time.total_seconds() / message_count
 
         print(
@@ -77,9 +72,7 @@ class Monitor:
 
     def _single_proc_get_next(self) -> SendResponse:
         # TODO: Is this even an option?
-        raise NotImplementedError(
-            f'"_single_proc_get_next" method is not currently supported.'
-        )
+        raise NotImplementedError(f'"_single_proc_get_next" method is not currently supported.')
 
     def _aws_get_next(self) -> SendResponse:
         raise NotImplementedError(f'"_aws_get_next" method is not currently supported.')
