@@ -51,6 +51,7 @@ class LocalController:
 
     def run(self):
         """Run the main program loop. See class docstring for more details."""
+        print(f"Running SMS simulation with {len(self._senders)} simulated senders.")
         procs = []
 
         for sender in self._senders:

@@ -18,9 +18,13 @@ class MessageSender:
 
     def send_messages(self, message: SMSMessage) -> SendResponse:
         """
-        Simulate sending `message`
-        :param message:
-        :return:
+        Simulate sending a `message` with random send time and chance of failure.
+        The send time is approximately normally distributed, based on the
+        `mean_wait_ms` and `std_wait_ms` and failure rate is determined by
+        `fail_rate`.
+
+        Args:
+            message: `SMSMessage` instance to "send"
         """
         start_time = dt.datetime.now()
 
