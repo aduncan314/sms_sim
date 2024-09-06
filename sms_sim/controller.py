@@ -2,8 +2,8 @@
 from multiprocessing import Process, Queue
 from queue import Empty
 
-from sms_sim.common import ConfiguredSettings
-from sms_sim.monitor import Monitor
+from sms_sim.common import ConfiguredSettings, RuntimeEnv
+from sms_sim.monitor import start
 from sms_sim.producer import create_phone_messages
 from sms_sim.sender import MessageSender
 
@@ -51,7 +51,9 @@ class LocalController:
 
     def run(self):
         """Run the main program loop. See class docstring for more details."""
-        print(f"Running SMS simulation with {len(self._senders)} simulated senders.")
+        print(
+            f"Running SMS simulation with {len(self._senders)} simulated sender{'s' if len(self._senders) > 1 else ''}."
+        )
         procs = []
 
         for sender in self._senders:
@@ -59,7 +61,9 @@ class LocalController:
             procs.append(p)
 
         # Create separate process for monitor
-        monitor_p = Process(target=monitor_worker, args=(self._out_queue, self._config.monitor_period))
+        monitor_p = Process(
+            target=monitor_worker, args=(self._out_queue, self._config.monitor_period, self._config.runtime_env)
+        )
         procs.append(monitor_p)
 
         for p in procs:
@@ -80,6 +84,5 @@ def message_worker(sender: MessageSender, in_q: Queue, out_q: Queue, timeout: in
         return
 
 
-def monitor_worker(out_q: Queue, period: int):
-    m = Monitor(update_period=period, queue=out_q)
-    m.start()
+def monitor_worker(out_q: Queue, period: int, env: RuntimeEnv):
+    start(queue=out_q, update_period=period, env=env)

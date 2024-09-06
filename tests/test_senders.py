@@ -18,6 +18,7 @@ def test_sender_success():
 
     assert send_response.error is None
 
+
 def test_sender_wait():
     test_message_sender = sender.MessageSender(0, 0, 0)
     test_message = common.SMSMessage("555-555-5555", "HEY")
@@ -29,4 +30,4 @@ def test_sender_wait():
     test_message = common.SMSMessage("555-555-5555", "HEY")
     send_response = test_message_sender.send_messages(test_message)
 
-    assert 0.0008 < (send_response.end_time - send_response.start_time).total_seconds() < .0012
+    assert 0.0008 < (send_response.end_time - send_response.start_time).total_seconds() < 0.0012
