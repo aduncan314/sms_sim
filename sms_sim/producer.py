@@ -1,4 +1,5 @@
 import random
+import string
 import typing as t
 from functools import partial
 
@@ -6,9 +7,7 @@ from sms_sim.common import SMSMessage
 
 
 def _create_random_message(num_func: t.Callable[[], str], msg_func: t.Callable[[], str]) -> SMSMessage:
-    num = num_func()
-    msg = msg_func()
-    return SMSMessage(phone_number=num, message=msg)
+    return SMSMessage(phone_number=num_func(), message=msg_func())
 
 
 def _gen_random_number() -> str:
@@ -16,7 +15,7 @@ def _gen_random_number() -> str:
 
 
 def _gen_random_message(msg_len: int = 100) -> str:
-    population = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
+    population = string.ascii_uppercase + " "
     return "".join(random.choices(population, k=msg_len))
 
 
@@ -26,5 +25,14 @@ def create_phone_messages(
     number_func: t.Callable = _gen_random_number,
     message_func: t.Callable = _gen_random_message,
 ) -> t.Generator[SMSMessage, None, None]:
+    """
+    Generate `SMSMessage` objects using `number_func` and `message_func`. The
+    number of messages is determined by `num`.
+
+    Args:
+        num: Number of messages
+        number_func: Function with no args that returns a random phone number
+        message_func: Function with no args that returns a random message
+    """
     bound_message_creator = partial(_create_random_message, number_func, message_func)
     return (bound_message_creator() for i in range(num))

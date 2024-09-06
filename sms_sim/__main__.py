@@ -3,27 +3,6 @@ import click
 from sms_sim.controller import LocalSenderController
 from sms_sim.settings import get_settings
 
-TEMP_CONFIG = {
-    "senders": [
-        {
-            "name": "first",
-            "args": {"mean_wait_ms": 10000, "std_wait_ms": 100, "fail_rate": 0.1},
-        },
-        {
-            "name": "second",
-            "args": {"mean_wait_ms": 10000, "std_wait_ms": 100, "fail_rate": 0.1},
-        },
-        {
-            "name": "third",
-            "args": {"mean_wait_ms": 10000, "std_wait_ms": 100, "fail_rate": 0.1},
-        },
-        {
-            "name": "fourth",
-            "args": {"mean_wait_ms": 10000, "std_wait_ms": 100, "fail_rate": 0.1},
-        },
-    ]
-}
-
 
 @click.group()
 def cli():

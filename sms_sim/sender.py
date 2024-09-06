@@ -5,6 +5,11 @@ from time import sleep
 from sms_sim.common import SMSMessage, SendResponse
 
 
+class RandomSendError(RuntimeError):
+    def __init__(self, *args):
+        super().__init__("Send forced to fail.", *args)
+
+
 class MessageSender:
     def __init__(self, mean_wait_ms: int, std_wait_ms: int = 1, fail_rate: float = 0.0):
         self._mean_wait_ms = float(mean_wait_ms)
@@ -12,28 +17,29 @@ class MessageSender:
         self._fail_rate = fail_rate
 
     def send_messages(self, message: SMSMessage) -> SendResponse:
+        """
+        Simulate sending `message`
+        :param message:
+        :return:
+        """
         start_time = dt.datetime.now()
-        if self._fail():
-            # print(f"Message to {message.phone_number} set to fail.")
-            return SendResponse(message, False, "Random", start_time, dt.datetime.now())
 
-        wait_time_ms = abs(random.normalvariate(self._mean_wait_ms, self._std_wait_ms))  # TODO: this is wrong
-        # print(f"Sending message to {message.phone_number} with wait time {wait_time_ms}")
-        sleep(wait_time_ms / 1_000_000)
+        self._sleep()
+
+        # TODO: Fail before or after sleep?
+        if self._fail():
+            return SendResponse(message, start_time, dt.datetime.now(), error=RandomSendError)
         try:
-            return self._send(message, start_time)
+            return SendResponse(message, start_time, dt.datetime.now(), error=None)
         except Exception as e:
-            # TODO: Perhaps just raise, perhaps include exception in response obj
-            return SendResponse(message, False, str(e), start_time, dt.datetime.now())
+            return SendResponse(message, start_time, dt.datetime.now(), error=e)
 
     def _fail(self) -> bool:
         val = random.choices(population=(True, False), weights=(self._fail_rate, 1 - self._fail_rate))
         return val[0]
 
-    @staticmethod
-    def _send(message: SMSMessage, start_time: dt.datetime) -> SendResponse:
-        # print(f"Sending SMS message to {message.phone_number}:\n{message.message}\\n")
-        return SendResponse(message, True, "", start_time, dt.datetime.now())
-
-    def _log(self, message: SMSMessage):
-        pass
+    def _sleep(self):
+        # TODO: Confirm that truncating will not cause analysis errors
+        wait_time_ms = random.normalvariate(self._mean_wait_ms, self._std_wait_ms)
+        wait_time_ms = wait_time_ms if wait_time_ms > 0 else 0
+        sleep(wait_time_ms / 1_000_000)

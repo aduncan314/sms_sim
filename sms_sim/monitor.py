@@ -5,6 +5,7 @@ import typing as t
 from enum import Enum
 from functools import reduce
 from multiprocessing import Queue
+from queue import Empty
 
 from sms_sim.common import SendResponse
 
@@ -37,21 +38,22 @@ class Monitor:
             raise ValueError(f"Expected {MonitorSource} but found {source}")
 
     def start(self):
-        print(f"Queue in monitor : {self._queue.qsize()}")
         buffer = []
         start_time = time.time()
         while True:
             try:
                 _next = self.get_next()
                 buffer.append(_next)
-            except Exception as e:
+            except Empty:
+                # Q may be empty due to latency or all messages being sent
                 pass
-            thingy = time.time() - start_time
-            if thingy > self._update_period:
+            time_since_last_update = time.time() - start_time
+            if time_since_last_update > self._update_period:
                 start_time = time.time()
                 self._publish(buffer)
 
-    def _publish(self, buffer: t.List[SendResponse]):
+    @staticmethod
+    def _publish(buffer: t.List[SendResponse]):
         message_count = len(buffer)
         failed_count = len([r for r in buffer if not r.success])
         total_msg_time = reduce(lambda x, y: x + y, [r.end_time - r.start_time for r in buffer])
@@ -65,9 +67,6 @@ class Monitor:
         )
 
     def _multi_proc_get_next(self) -> SendResponse:
-        # _get = partial(self._queue.get, timeout=10)
-        # for i in iter(_get, "STOP"):
-        #     yield i
         return self._queue.get(timeout=0.5)
 
     def _single_proc_get_next(self) -> SendResponse:

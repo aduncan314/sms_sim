@@ -22,10 +22,13 @@ class SMSMessage:
 @dataclass
 class SendResponse:
     message: SMSMessage
-    success: bool
-    reason: str
     start_time: dt.datetime
     end_time: dt.datetime
+    error: t.Optional[t.Type[Exception]]
+
+    @property
+    def success(self):
+        return not self.error
 
 
 class RuntimeEnv(str, Enum):
@@ -36,15 +39,9 @@ class RuntimeEnv(str, Enum):
 @dataclass(eq=True, frozen=True)
 class SingleSenderConfig:
     name: str
-
-    # Data
     mean_wait_ms: int
     std_wait_ms: int
     fail_rate: float
-
-    @property
-    def data(self) -> dict:
-        return {name: val for name, val in vars().items() if name != "name"}
 
 
 @dataclass(eq=True, frozen=True)

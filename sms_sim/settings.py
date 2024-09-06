@@ -11,6 +11,22 @@ DEFAULT_SETTINGS_FILE_PATH = Path(__file__).parent.parent.joinpath("run_config.y
 
 
 def get_settings(cli_settings: dict) -> ConfiguredSettings:
+    """
+    Return setting for the project. Default values are overridden by (1) a
+    config file, followed by (2) environment variables, and (3) variables set
+    by CLI options.
+
+    (1) Config file must be a yaml file named 'run_config.yml' found in the
+        project root.
+    (2) Environment variables are named using the form
+        'SMS_SIM_<module>_<name>' where <module> is one of 'PRODUCER', 'SENDER',
+        or 'MONITOR' based on the part of the program they effect. <name> is the
+        name of the value in `ConfiguredSettings`.
+    (3) CLI options are determined in the main file.
+
+    Args:
+        cli_settings: Dictionary of settings determined by CLI options
+    """
     settings = _get_default_settings()
 
     settings = _file_override(settings)
@@ -56,7 +72,9 @@ def _file_override(
 
 def _read_settings_file(file_path: Path) -> dict:
     with file_path.open("r") as f:
-        return yaml.safe_load(f)
+        file_settings = yaml.safe_load(f)
+
+    return file_settings if file_settings is not None else {}
 
 
 def _envvar_override(settings: ConfiguredSettings) -> ConfiguredSettings:
