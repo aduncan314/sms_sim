@@ -2,6 +2,9 @@
 
 ## Andrew Duncan interview project
 
+[!WARNING]
+This project contains a Dockerfile, but running directly is recommended due to issues with multiple processes running.
+
 This is a PoC program written to run on a single machine. While this could be written in fewer lines of code, the components have been broken out so that splitting onto AWS (or similar) infrastructure would be simple.
 
 In a number of places, decisions were made explicitly to facilitate a future use where each component runs on its own without the `LocalController` object managing the queues.
