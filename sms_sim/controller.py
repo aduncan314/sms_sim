@@ -10,7 +10,7 @@ from sms_sim.sender import MessageSender
 TIMEOUT = 5
 
 
-class LocalSenderController:
+class LocalController:
     """
     Class that runs all portions of the code when running on a single machine.
 
