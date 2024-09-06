@@ -2,8 +2,8 @@
 
 ## Andrew Duncan interview project
 
-[!WARNING]
-This project contains a Dockerfile, but running directly is recommended due to issues with multiple processes running.
+>[!WARNING]
+>This project contains a Dockerfile, but running directly is recommended due to issues with multiple processes running.
 
 This is a PoC program written to run on a single machine. While this could be written in fewer lines of code, the components have been broken out so that splitting onto AWS (or similar) infrastructure would be simple.
 
